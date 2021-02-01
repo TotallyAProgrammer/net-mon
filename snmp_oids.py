@@ -17,3 +17,7 @@ total_mem_oid = '1.3.6.1.4.1.2021.4.5.0'
 used_mem_oid = '1.3.6.1.4.1.2021.4.6.0'
 free_mem_oid = '1.3.6.1.4.1.2021.4.11.0'
 uptime_oid = '1.3.6.1.2.1.1.3.0'
+uptime2_oid = '1.3.6.1.2.1.25.1.1.0'
+known_ips_oid = '1.3.6.1.2.1.4.22.1.3.2'
+sys_ips_oid = '1.3.6.1.2.1.4.20.1.1'
+all_ip_info = '1.3.6.1.2.1.4' # Caution, on some systems this can produce and absurd amount of output
