@@ -1,4 +1,4 @@
-import configparser, sys
+import configparser, sys, time, datetime, math
 from pysnmp import hlapi
 from quicksnmp import get, get_bulk_auto
 from snmp_oids import *
@@ -26,10 +26,58 @@ for it in its:
             print("{0}={1}".format(k, v))
     print('')
 '''
-#                  Bytes in                      Bytes out              Get interface 1 info     Get interface 1 info
-oidsToLookup = [hostname_oid, min1_load_oid, total_mem_oid, total_swap_oid, uptime_oid]
 
-for oidStr in oidsToLookup:
-    oid = [oidStr]
-#    oid[1] = oidStr
-    print(get(host, oid, hlapi.CommunityData(community)))
+def secondsToWords(seconds):
+    print(float(seconds/1000))
+    seconds /= 1000
+    ret = ""
+    seconds_r = math.modf(float(seconds) / 60)
+    if (seconds_r[1] > 0):
+        ret = "{seconds} seconds ".format(seconds=int(seconds_r[1]))
+        print(ret)
+        minutes_r = math.modf((float(seconds_r[1]) / 60) / 60)
+        if (minutes_r[1] > 0):
+            hours_r = math.modf((float(seconds_r[1]) / 3600) / 24)
+            ret = "{minutes} minutes ".format(minutes=int(minutes_r[1]))
+            print(ret)
+            if (hours_r[1] > 0):
+                days_r = math.modf(float(float(seconds_r[1]) / (3600*24)))
+                ret = "{hours} hours ".format(hours=int(hours_r[1]))
+                print(ret)
+                if (days_r[1] > 0):
+                    ret = "{days} days ".format(days=int(days_r[1]))
+                    print(ret)
+
+    return ret
+
+def getn(oid):
+    global host
+    return get(host, [oid], hlapi.CommunityData(community)).get(oid)
+
+print(secondsToWords(getn(uptime2_oid)))
+
+oidsToLookup = [hostname_oid, min1_load_oid, total_mem_oid, total_swap_oid, uptime_oid]
+try:
+    while True:
+        t = getn(uptime2_oid)
+        time_dict = {
+            'seconds': '%.2f' % ((t/1000)%60),
+            'minutes': '%.2f' % ((t/(1000*60))%60),
+            'hours': '%.2f' % ((t/(1000*60*60))%24),
+            'days': '%.2f' % (t/(1000*60*60*24)*10)
+        }
+        #seconds, minutes, hours, days = (t/1000)%60, (t/(1000*60))%60, (t/(1000*60*60))%24, (t/(1000*60*60*24))
+        text_dict = {
+            'hostname': str(getn(hostname_oid)),
+            'min1_load': str(getn(min1_load_oid)),
+            'total_mem': str(getn(total_mem_oid)),
+            'total_swap': str(getn(total_swap_oid)),
+            #'uptime': str('%.2f' % (int(getn(uptime2_oid))/8640000))
+            'uptime': 'Days: {days}, Hours: {hours} Minutes: {minutes} Seconds: {seconds}'.format(**time_dict)
+        }
+        text = 'Hostname: {hostname}, 1 min load avg: {min1_load} ,Total memory: {total_mem}, Total swap: {total_swap}, Uptime: {uptime}'.format(**text_dict)
+        print(text, end='\r')
+        time.sleep(0.5)
+except Exception as exp:
+    print(str(exp) + '\n')
+    sys.exit()
