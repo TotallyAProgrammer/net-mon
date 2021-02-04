@@ -6,7 +6,7 @@ from snmp_oids import *
 # Read config
 try:
     config = configparser.ConfigParser()
-    config.read_file(open(r'C:\Users\foo\Documents\GitHub\net-mon\config.ini'))
+    config.read_file(open(r'./config.ini'))
 except Exception as exp:
     print(str(exp))
     sys.exit()
