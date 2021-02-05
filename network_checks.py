@@ -52,6 +52,55 @@ def checkHost(checkType, host=None, port=80, attempts=10, timeout=4):
         for time in latency_pre:
             sum += time
         average = sum/len(latency_pre)
-        print("%.2f" % average)
+        return float(str("%.2f" % average))
 
-checkHost("latency", "1.1.1.1")
+print(checkHost("latency", "1.1.1.1"))
+
+'''
+    "": {
+        "checkType": "latency",
+        "host": "",
+        "port": 80,
+        "attempts": 4,
+        "timeout": 4
+    }
+'''
+
+hostsDict = {
+    "Cloudflare": {
+        "checkType": "latency",
+        "host": "1.1.1.1",
+        "port": 80,
+        "attempts": 4,
+        "timeout": 4
+    },
+        "ISI": {
+        "checkType": "latency",
+        "host": "integratedsolutions.net",
+        "port": 80,
+        "attempts": 4,
+        "timeout": 4
+    },
+        "Tokyo": {
+        "checkType": "latency",
+        "host": "ty1.mirror.newmediaexpress.com",
+        "port": 80,
+        "attempts": 4,
+        "timeout": 4
+    },
+    "MIT": {
+        "checkType": "latency",
+        "host": "mirrors.mit.edu",
+        "port": 80,
+        "attempts": 4,
+        "timeout": 4
+    }
+
+}
+
+def checkHosts(parameterDictionary):
+    """
+    Check a dictionary of hosts with their own parameters
+    parameterDictionary: a dictionary containing at least one host definition
+    """
+    pass
