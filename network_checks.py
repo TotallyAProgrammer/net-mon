@@ -1,5 +1,6 @@
 import socket
 import json
+from tcp_latency import measure_latency
 
 def tcpCheck(ip, port, timeout):
     '''
@@ -35,9 +36,22 @@ def updateData(dataStorage, dataToStore):
 def readData():
     pass
 
-def checkHost(checkType):
+def checkHost(checkType, host=None, port=80, attempts=10, timeout=4):
     checkType = str(checkType).lower()
     if (checkType == "icmp"):
+        raise NotImplementedError
+    elif (checkType == "tcp_up"):
         pass
-    elif (checkType == "tcp"):
+    elif (checkType == "latency"):
         pass
+        if (host is not None):
+            latency_pre = measure_latency(host=host, port=port, runs=attempts, timeout=timeout)
+        else:
+            raise ValueError
+        sum = 0
+        for time in latency_pre:
+            sum += time
+        average = sum/len(latency_pre)
+        print("%.2f" % average)
+
+checkHost("latency", "1.1.1.1")
