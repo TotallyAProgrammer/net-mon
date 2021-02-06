@@ -49,12 +49,18 @@ def checkHost(checkType, host=None, port=80, attempts=10, timeout=4):
         else:
             raise ValueError
         sum = 0
+        valid = 0
+        dropped = 0
         for time in latency_pre:
-            sum += time
-        average = sum/len(latency_pre)
-        return float(str("%.2f" % average))
-
-print(checkHost("latency", "1.1.1.1"))
+            try:
+                sum += time
+                valid += 1
+            except Exception as exp:
+                print(str(exp))
+                dropped += 1
+                #return False
+        average = sum/valid
+        return {"avg": float(str("%.2f" % average)), "dropped": dropped}
 
 '''
     "": {
@@ -67,21 +73,21 @@ print(checkHost("latency", "1.1.1.1"))
 '''
 
 hostsDict = {
-    "Cloudflare": {
+    "Cloudflare DNS": {
         "checkType": "latency",
         "host": "1.1.1.1",
-        "port": 80,
+        "port": 53,
         "attempts": 4,
         "timeout": 4
     },
-        "ISI": {
+    "ISI": {
         "checkType": "latency",
         "host": "integratedsolutions.net",
         "port": 80,
         "attempts": 4,
         "timeout": 4
     },
-        "Tokyo": {
+    "Tokyo": {
         "checkType": "latency",
         "host": "ty1.mirror.newmediaexpress.com",
         "port": 80,
@@ -94,13 +100,36 @@ hostsDict = {
         "port": 80,
         "attempts": 4,
         "timeout": 4
+    },
+    "Google DNS": {
+        "checkType": "latency",
+        "host": "8.8.8.8",
+        "port": 53,
+        "attempts": 4,
+        "timeout": 4
     }
-
 }
 
-def checkHosts(parameterDictionary):
+def checkHosts(parameterDictionary=None):
     """
     Check a dictionary of hosts with their own parameters
     parameterDictionary: a dictionary containing at least one host definition
     """
-    pass
+    resultDict = {}
+    if parameterDictionary is None or isinstance(parameterDictionary, dict) is False:
+        raise ValueError
+    for name in parameterDictionary:
+        #print(name + " ; " + parameterDictionary.get(name).get('checkType') + " ; " + parameterDictionary.get(name).get('host') + " ; " + str(parameterDictionary.get(name).get('port')) + " ; " + str(parameterDictionary.get(name).get('attempts')) + " ; " + str(parameterDictionary.get(name).get('timeout')) + " ;\n")
+        tempDict = {name: checkHost(checkType=parameterDictionary.get(name).get('checkType'), host=parameterDictionary.get(name).get('host'), port=parameterDictionary.get(name).get('port'), attempts=parameterDictionary.get(name).get('attempts'), timeout=parameterDictionary.get(name).get('timeout'))}
+        print(tempDict)
+        resultDict.update(tempDict)
+    return resultDict
+
+#print(checkHost("latency", "1.1.1.1", attempts=4))
+import time, sys
+while True:
+    try:
+        checkHosts(hostsDict)
+        time.sleep(5)
+    except:
+        sys.exit()
