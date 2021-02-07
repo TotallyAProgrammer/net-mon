@@ -2,6 +2,8 @@ import socket
 import json
 from tcp_latency import measure_latency
 
+debug = True
+
 def tcpCheck(ip, port, timeout):
     '''
     See if host is up
@@ -23,8 +25,10 @@ def updateData(dataStorage, dataToStore):
     Update the data that is being stored
     Input data and where to store it
     '''
-    data = {}
-    jsonData = json.dumps(data)
+    if dataToStore is None or isinstance(dataToStore, dict) is False:
+        raise ValueError
+
+    jsonData = json.dumps(dataToStore)
     try:
         with open('network_log.json', 'a') as output:
             output.write(jsonData + "\n")
@@ -33,8 +37,22 @@ def updateData(dataStorage, dataToStore):
         print("Exception: " + str(exp))
         return False
 
-def readData():
-    pass
+def readData(dataStorage):
+    try:
+        with open(dataStorage, 'r') as f_input:
+            for line in f_input:
+                # data = json.load(f_input)
+                dataDict = json.loads(line)
+                i = 0
+                global debug
+                if debug:
+                    for (key, val) in dataDict.items():
+                        i += 1
+                        print(str(i) + " " + str(key) + " : avg: " + str(val.get('avg')) + " : dropped: " + str(val.get('dropped')))
+            return False
+    except Exception as exp:
+        print("Exception: " + str(exp))
+        return False
 
 def checkHost(checkType, host=None, port=80, attempts=10, timeout=4):
     checkType = str(checkType).lower()
@@ -129,7 +147,9 @@ def checkHosts(parameterDictionary=None):
 import time, sys
 while True:
     try:
-        checkHosts(hostsDict)
-        time.sleep(5)
+        #updateData(None, checkHosts(hostsDict))
+        readData('network_log.json')
+        #time.sleep(5)
+        sys.exit()
     except:
         sys.exit()
