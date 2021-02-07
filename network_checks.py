@@ -2,7 +2,7 @@ import socket
 import json
 from tcp_latency import measure_latency
 
-debug = True
+debug = False
 
 def tcpCheck(ip, port, timeout):
     '''
@@ -20,17 +20,19 @@ def tcpCheck(ip, port, timeout):
     finally:
         s.close()
 
-def updateData(dataStorage, dataToStore):
+def updateData(dataStorage, dataToStore, mode="w"):
     '''
     Update the data that is being stored
     Input data and where to store it
+    Do NOT change mode unless you know what the implications of that is.
+    TL;DR, if mode is not w, this stuff will probably break.
     '''
     if dataToStore is None or isinstance(dataToStore, dict) is False:
         raise ValueError
 
     jsonData = json.dumps(dataToStore)
     try:
-        with open('network_log.json', 'a') as output:
+        with open(dataStorage, mode) as output:
             output.write(jsonData + "\n")
             return True
     except Exception as exp:
@@ -75,21 +77,34 @@ def checkHost(checkType, host=None, port=80, attempts=10, timeout=4):
                 sum += time
                 valid += 1
             except Exception as exp:
-                print(str(exp))
+                global debug
+                if debug:
+                    print("Exception: "+ str(exp))
                 dropped += 1
                 #return False
         average = sum/valid
         return {"avg": float(str("%.2f" % average)), "dropped": dropped}
 
-'''
-    "": {
-        "checkType": "latency",
-        "host": "",
-        "port": 80,
-        "attempts": 4,
-        "timeout": 4
-    }
-'''
+def checkHosts(parameterDictionary=None):
+    """
+    Check a dictionary of hosts with their own parameters
+    parameterDictionary: a dictionary containing at least one host definition
+    """
+    resultDict = {}
+    if parameterDictionary is None or isinstance(parameterDictionary, dict) is False:
+        raise ValueError
+    for name in parameterDictionary:
+        global debug
+        if debug:
+            print(name + " ; " + parameterDictionary.get(name).get('checkType') + " ; " + parameterDictionary.get(name).get('host') + " ; " + str(parameterDictionary.get(name).get('port')) + " ; " + str(parameterDictionary.get(name).get('attempts')) + " ; " + str(parameterDictionary.get(name).get('timeout')) + " ;\n")
+        try:
+            tempDict = {name: checkHost(checkType=parameterDictionary.get(name).get('checkType'), host=parameterDictionary.get(name).get('host'), port=parameterDictionary.get(name).get('port'), attempts=parameterDictionary.get(name).get('attempts'), timeout=parameterDictionary.get(name).get('timeout'))}
+        except Exception as exp:
+            print("Exception: " + str(exp))
+        if debug:
+            print(tempDict)
+        resultDict.update(tempDict)
+    return resultDict
 
 hostsDict = {
     "Cloudflare DNS": {
@@ -129,28 +144,15 @@ hostsDict = {
     }
 }
 
-def checkHosts(parameterDictionary=None):
-    """
-    Check a dictionary of hosts with their own parameters
-    parameterDictionary: a dictionary containing at least one host definition
-    """
-    resultDict = {}
-    if parameterDictionary is None or isinstance(parameterDictionary, dict) is False:
-        raise ValueError
-    for name in parameterDictionary:
-        #print(name + " ; " + parameterDictionary.get(name).get('checkType') + " ; " + parameterDictionary.get(name).get('host') + " ; " + str(parameterDictionary.get(name).get('port')) + " ; " + str(parameterDictionary.get(name).get('attempts')) + " ; " + str(parameterDictionary.get(name).get('timeout')) + " ;\n")
-        tempDict = {name: checkHost(checkType=parameterDictionary.get(name).get('checkType'), host=parameterDictionary.get(name).get('host'), port=parameterDictionary.get(name).get('port'), attempts=parameterDictionary.get(name).get('attempts'), timeout=parameterDictionary.get(name).get('timeout'))}
-        print(tempDict)
-        resultDict.update(tempDict)
-    return resultDict
-
-#print(checkHost("latency", "1.1.1.1", attempts=4))
-import time, sys
-while True:
-    try:
-        #updateData(None, checkHosts(hostsDict))
-        readData('network_log.json')
-        #time.sleep(5)
-        sys.exit()
-    except:
-        sys.exit()
+testing = False
+if testing:
+    import time, sys
+    while True:
+        try:
+            updateData('network_log.json', checkHosts(hostsDict))
+            print(readData('network_log.json'))
+            time.sleep(5)
+        except KeyboardInterrupt:
+            sys.exit()
+        except Exception as exp:
+            print(str(exp))
