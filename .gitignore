@@ -136,3 +136,4 @@ pyvenv.cfg
 /.vscode
 /scraps
 /config.ini
+network_log.json
