@@ -43,12 +43,13 @@ def readData(dataStorage):
             for line in f_input:
                 # data = json.load(f_input)
                 dataDict = json.loads(line)
-                i = 0
                 global debug
                 if debug:
+                    i = 0
                     for (key, val) in dataDict.items():
                         i += 1
                         print(str(i) + " " + str(key) + " : avg: " + str(val.get('avg')) + " : dropped: " + str(val.get('dropped')))
+                return dataDict
             return False
     except Exception as exp:
         print("Exception: " + str(exp))
@@ -59,7 +60,7 @@ def checkHost(checkType, host=None, port=80, attempts=10, timeout=4):
     if (checkType == "icmp"):
         raise NotImplementedError
     elif (checkType == "tcp_up"):
-        pass
+        raise NotImplementedError
     elif (checkType == "latency"):
         pass
         if (host is not None):
