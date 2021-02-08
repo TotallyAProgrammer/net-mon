@@ -2,7 +2,7 @@ import socket
 import json
 from tcp_latency import measure_latency
 
-debug = False
+debug = True
 
 def tcpCheck(ip, port, timeout):
     '''
@@ -82,7 +82,9 @@ def checkHost(checkType, host=None, port=80, attempts=10, timeout=4):
                     print("Exception: "+ str(exp))
                 dropped += 1
                 #return False
-        average = sum/valid
+        average = 0
+        if sum is not 0:
+            average = sum/valid
         return {"avg": float(str("%.2f" % average)), "dropped": dropped}
 
 def checkHosts(parameterDictionary=None):
@@ -96,7 +98,7 @@ def checkHosts(parameterDictionary=None):
     for name in parameterDictionary:
         global debug
         if debug:
-            print(name + " ; " + parameterDictionary.get(name).get('checkType') + " ; " + parameterDictionary.get(name).get('host') + " ; " + str(parameterDictionary.get(name).get('port')) + " ; " + str(parameterDictionary.get(name).get('attempts')) + " ; " + str(parameterDictionary.get(name).get('timeout')) + " ;\n")
+            print(name + " ; " + parameterDictionary.get(name).get('checkType') + " ; " + parameterDictionary.get(name).get('host') + " ; " + str(parameterDictionary.get(name).get('port')) + " ; " + str(parameterDictionary.get(name).get('attempts')) + " ; " + str(parameterDictionary.get(name).get('timeout')) + " ;")
         try:
             tempDict = {name: checkHost(checkType=parameterDictionary.get(name).get('checkType'), host=parameterDictionary.get(name).get('host'), port=parameterDictionary.get(name).get('port'), attempts=parameterDictionary.get(name).get('attempts'), timeout=parameterDictionary.get(name).get('timeout'))}
         except Exception as exp:
@@ -141,16 +143,24 @@ hostsDict = {
         "port": 53,
         "attempts": 4,
         "timeout": 4
+    },
+    "Hy-Vee DS": {
+        "checkType": "latency",
+        "host": "174.76.216.72",
+        "port": 80,
+        "attempts": 4,
+        "timeout": 2
     }
 }
 
-testing = False
+testing = True
 if testing:
     import time, sys
     while True:
         try:
-            updateData('network_log.json', checkHosts(hostsDict))
-            print(readData('network_log.json'))
+            print(checkHosts(hostsDict))
+            #updateData('network_log.json', checkHosts(hostsDict))
+            #print(readData('network_log.json'))
             time.sleep(5)
         except KeyboardInterrupt:
             sys.exit()
