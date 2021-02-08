@@ -137,3 +137,19 @@ pyvenv.cfg
 /scraps
 /config.ini
 network_log.json
+
+### react ###
+.DS_*
+*.log
+logs
+**/*.backup.*
+**/*.back.*
+
+node_modules
+bower_components
+
+*.sublime*
+
+psd
+thumb
+sketch

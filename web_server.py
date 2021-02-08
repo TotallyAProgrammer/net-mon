@@ -1,10 +1,10 @@
-from http.server import BaseHTTPRequestHandler, HTTPServer
+from http.server import SimpleHTTPRequestHandler, HTTPServer
 
 HOST = "0.0.0.0"
 PORT = 8080
 
-class webServer(BaseHTTPRequestHandler):
-    def do_GET(self):
+class webServer(SimpleHTTPRequestHandler):
+    def do_GET_old(self):
         self.send_response(200)
         self.send_header("Content-type", "text/html")
         self.end_headers()
