@@ -1,5 +1,17 @@
 var dataContainer = document.getElementById("networkData");
+
 const splitLines = str => str.split(/\r?\n/);
+
+function mergeDicts(dictOne, dictTwo) {
+    var finalDict = {};
+    for (var i in dictOne) {
+      finalDict[i] = dictOne[i];
+    }
+    for (var j in dictTwo) {
+        finalDict[j] = dictTwo[j];
+    }
+    return finalDict;
+};
 
 function readTextFile(file, alertUser) {
     var allText = "";
@@ -18,11 +30,19 @@ function readTextFile(file, alertUser) {
     }
     rawFile.send(null);
     return allText;
-}
+};
 
 function parseMassJSON(fileName) {
     ///console.log(readTextFile(fileName, 0))
-    var massJson = splitLines(readTextFile(fileName, 0));
-}
+    var fullDict = {}
+    var massJson = splitLines(readTextFile(fileName, 0)).slice(0, -1);
+    console.log(massJson);
+    for (line of massJson) {
+        //fullDict = mergeDicts(fullDict, JSON.parse(line));
+        console.log(line);
+        console.log(JSON.parse(line));
+    }
+    return fullDict;
+};
 
-parseMassJSON("/network_log.json");
+console.log(parseMassJSON("/network_log.json"));
