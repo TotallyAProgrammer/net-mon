@@ -1,4 +1,5 @@
 var dataContainer = document.getElementById("networkData");
+const splitLines = str => str.split(/\r?\n/);
 
 function readTextFile(file, alertUser) {
     var allText = "";
@@ -20,7 +21,8 @@ function readTextFile(file, alertUser) {
 }
 
 function parseMassJSON(fileName) {
-    console.log(readTextFile(fileName, 0))
+    ///console.log(readTextFile(fileName, 0))
+    var massJson = splitLines(readTextFile(fileName, 0));
 }
 
 parseMassJSON("/network_log.json");
