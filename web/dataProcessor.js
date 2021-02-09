@@ -34,15 +34,20 @@ function readTextFile(file, alertUser) {
 
 function parseMassJSON(fileName) {
     ///console.log(readTextFile(fileName, 0))
-    var fullDict = {}
+    var counter = 0;
+    var fullDict = {};
     var massJson = splitLines(readTextFile(fileName, 0)).slice(0, -1);
     console.log(massJson);
     for (line of massJson) {
-        //fullDict = mergeDicts(fullDict, JSON.parse(line));
-        console.log(line);
+        counter = counter + 1;
+        var tempDict = [];
+        tempDict[counter] = JSON.parse(line)
+        fullDict = mergeDicts(fullDict, tempDict);
+        //console.log(line);
         console.log(JSON.parse(line));
     }
+    console.log('---\n')
     return fullDict;
 };
-
+console.log("---")
 console.log(parseMassJSON("/network_log.json"));
