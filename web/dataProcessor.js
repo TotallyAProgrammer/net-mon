@@ -1,0 +1,1 @@
+var dataContainer = document.getElementById("networkData");
