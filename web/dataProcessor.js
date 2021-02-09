@@ -1,4 +1,4 @@
-var dataContainer = document.getElementById("networkData");
+//var dataContainer = document.getElementById("networkData");
 
 const splitLines = str => str.split(/\r?\n/);
 
@@ -44,10 +44,29 @@ function parseMassJSON(fileName) {
         tempDict[counter] = JSON.parse(line)
         fullDict = mergeDicts(fullDict, tempDict);
         //console.log(line);
-        //console.log(JSON.parse(line));
+        console.log(JSON.parse(line));
     }
     //console.log('---\n')
     return fullDict;
 };
 
-console.log(parseMassJSON("/network_log.json"));
+/*
+for (var key in dict){
+    console.log( key, dict[key] );
+}
+*/
+
+function generateTable(dict) {
+    var fullTable = "";
+    fullTable += "<table border='1'>";
+    for (var key in dict) {
+        fullTable += "<tr>" + "<td>" + dict[key] + "</td>" + "<td>" + dict[key]['latency'] + "</td>" + "<td>" + dict[key]['dropped'] + "</td>" + "</tr>";
+    }
+    fullTable += "</table>";
+    return fullTable;
+}
+
+var parsedJson = parseMassJSON("/network_log.json");
+
+console.log(parsedJson);
+document.getElementById("networkData").innerHTML = generateTable(parsedJson);
